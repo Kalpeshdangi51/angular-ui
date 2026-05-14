@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute, Router, RouterModule } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { EmployeeService } from '../service/employee.service';
@@ -7,17 +7,24 @@ import { EmployeeService } from '../service/employee.service';
 @Component({
   selector: 'app-add-employee',
   standalone: true,
-  imports: [FormsModule, CommonModule, RouterModule],
+  imports: [FormsModule, CommonModule],
   templateUrl: './add-employee.html',
-  styleUrl: './add-employee.css',
+  styleUrl: './add-employee.css'
 })
 export class AddEmployee implements OnInit {
 
   employee: any = {
-    empDepartment: []
+    empName: '',
+    empEmail: '',
+    empGender: '',
+    empCity: '',
+    aboutEmployee: '',
+    empDepartment: [],
+    empImage: ''
   };
 
   selectedFile: any;
+
   id: any;
   isEdit = false;
 
@@ -27,94 +34,173 @@ export class AddEmployee implements OnInit {
     private router: Router
   ) {}
 
-  ngOnInit() {
-    this.route.params.subscribe(params => {
-      this.id = params['id'];
+  ngOnInit(): void {
 
-      if (this.id) {
-        this.isEdit = true;
+    this.id = this.route.snapshot.params['id'];
 
-        this.service.getEmployeeById(+this.id).subscribe((emp: any) => {
+    // EDIT MODE
+    if (this.id) {
 
-          this.employee = emp;
+      this.isEdit = true;
 
-          // ✅ Department string → array
-          if (emp.empDepartment) {
-            this.employee.empDepartment = emp.empDepartment.split(',');
-          } else {
-            this.employee.empDepartment = [];
-          }
+      this.service.getEmployeeById(this.id).subscribe((data: any) => {
 
-        });
-      }
-    });
+        console.log(data);
+
+        this.employee = data;
+
+        // string to array
+        this.employee.empDepartment =
+          data.empDepartment
+          ? data.empDepartment.split(',')
+          : [];
+
+      });
+
+    }
   }
 
-  // ✅ File select
+  // FILE
   onFileSelected(event: any) {
     this.selectedFile = event.target.files[0];
   }
 
-  // ✅ Submit (Add + Update)
+  // SUBMIT
+  // onSubmit() {
+
+  //   const formData = new FormData();
+
+  //   if (this.employee.empId) {
+  //     formData.append('empId', this.employee.empId);
+  //   }
+  //   formData.append('empName', this.employee.empName);
+  //   formData.append('empEmail', this.employee.empEmail);
+  //   formData.append('empGender', this.employee.empGender);
+  //   formData.append('empCity', this.employee.empCity);
+  //   formData.append('aboutEmployee', this.employee.aboutEmployee);
+
+  //   formData.append(
+  //     'empDepartment',
+  //     this.employee.empDepartment.join(',')
+  //   );
+
+  //   // old image
+  //   formData.append('file', this.employee.empImage);
+
+  //   // new image
+  //   if (this.selectedFile) {
+  //     formData.append('file', this.selectedFile);
+  //   }
+
+  //   // UPDATE
+  //   if (this.isEdit) {
+
+  //     this.service.updateEmployee(formData).subscribe(() => {
+
+  //       alert("Employee Updated");
+
+  //       this.router.navigate(['/']);
+
+  //     });
+
+  //   }
+
+  //   // ADD
+  //   else {
+
+  //     this.service.addEmployee(formData).subscribe(() => {
+  //       this.router.navigate(['/']);
+  //     });
+
+  //   }
+  // }
   onSubmit() {
-    const formData = new FormData();
 
-    formData.append('empName', this.employee.empName);
-    formData.append('empEmail', this.employee.empEmail);
-    formData.append('empGender', this.employee.empGender);
-    formData.append('empCity', this.employee.empCity);
-    formData.append('aboutEmployee', this.employee.aboutEmployee || '');
+  const formData = new FormData();
 
-    // ✅ Convert array → string
-    formData.append('empDepartment', this.employee.empDepartment.join(','));
-
-    // ✅ Send old image if exists
-    if (this.employee.empImage) {
-      formData.append('empImage', this.employee.empImage);
-    }
-
-    // ✅ Send new file if selected
-    if (this.selectedFile) {
-      formData.append('file', this.selectedFile);
-    }
-
-    // ✅ EDIT
-    if (this.isEdit) {
-      formData.append('empId', this.id);
-
-      this.service.updateEmployee(formData).subscribe(() => {
-        this.router.navigate(['/']);
-      });
-
-    } 
-    // ✅ ADD
-    else {
-      this.service.addEmployee(formData).subscribe(() => {
-        this.router.navigate(['/']);
-      });
-    }
+  if (this.employee.empId) {
+    formData.append('empId', this.employee.empId);
   }
 
-  // ✅ Checkbox handling
+  formData.append('empName', this.employee.empName);
+  formData.append('empEmail', this.employee.empEmail);
+  formData.append('empGender', this.employee.empGender);
+  formData.append('empCity', this.employee.empCity);
+  formData.append('aboutEmployee', this.employee.aboutEmployee);
+
+  formData.append(
+    'empDepartment',
+    this.employee.empDepartment.join(',')
+  );
+
+  // OLD IMAGE NAME
+  formData.append(
+    'oldImage',
+    this.employee.empImage || ''
+  );
+
+  // NEW FILE
+  if (this.selectedFile) {
+    formData.append('file', this.selectedFile);
+  }
+
+  // UPDATE
+  if (this.isEdit) {
+
+    this.service.updateEmployee(formData).subscribe(() => {
+
+      alert("Employee Updated");
+
+      this.router.navigate(['/']);
+
+    });
+
+  }
+
+  // ADD
+  else {
+
+    this.service.addEmployee(formData).subscribe(() => {
+
+      alert("Employee Added");
+
+      this.router.navigate(['/']);
+
+    });
+
+  }
+}
+
+  // CHECKBOX
   onDepartmentChange(event: any) {
+
     const value = event.target.value;
 
     if (event.target.checked) {
-      if (!this.employee.empDepartment.includes(value)) {
-        this.employee.empDepartment.push(value);
-      }
+
+      this.employee.empDepartment.push(value);
+
     } else {
+
       this.employee.empDepartment =
-        this.employee.empDepartment.filter((d: string) => d !== value);
+        this.employee.empDepartment.filter(
+          (d: any) => d != value
+        );
     }
   }
 
-  // ✅ Helper for checkbox checked
-  isChecked(dept: string): boolean {
-    return this.employee.empDepartment?.includes(dept);
+  // CHECKED
+  isChecked(value: string) {
+
+    return this.employee.empDepartment.includes(value);
+
   }
 
+  // BACK
   goToList() {
+
     this.router.navigate(['/']);
+
   }
+
 }

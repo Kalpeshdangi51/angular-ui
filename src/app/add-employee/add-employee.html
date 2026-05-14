@@ -70,7 +70,9 @@
                 <label class="form-label d-block">Department</label>
 
                 <div class="form-check">
-                  <input type="checkbox"
+                  <input class="form-check-input"
+                    type="checkbox"
+                    name="department"
                     value="IT"
                     [checked]="isChecked('IT')"
                     (change)="onDepartmentChange($event)">
@@ -80,6 +82,7 @@
                 <div class="form-check">
                   <input class="form-check-input"
                          type="checkbox"
+                         name="department"
                          value="HR"
                          [checked]="isChecked('HR')"
                          (change)="onDepartmentChange($event)">
@@ -89,6 +92,7 @@
                 <div class="form-check">
                   <input class="form-check-input"
                          type="checkbox"
+                         name="department"
                          value="Sales"
                          [checked]="isChecked('Sales')"
                          (change)="onDepartmentChange($event)">
@@ -131,11 +135,11 @@
                 {{ isEdit ? 'Update Employee' : 'Add Employee' }}
               </button>
 
-              <!-- <button type="button"
+              <button type="button"
                       class="btn btn-secondary px-4"
-                      (click)="router.navigate(['/'])">
+                      (click)="goToList()">
                 Cancel
-              </button> -->
+              </button>
 
             </div>
 

@@ -30,7 +30,7 @@ export class EmployeeListComponent implements OnInit {
       next: (data) => {
         console.log('Data:', data);
         this.employees = [...data];  
-        // this.cdr.detectChanges();     
+        this.cdr.detectChanges();     
       },
       error: (err) => console.error('Error:', err)
     });
